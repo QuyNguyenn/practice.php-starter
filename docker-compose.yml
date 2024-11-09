@@ -1,0 +1,31 @@
+version: "2.4"
+name: php-apache-server
+services:
+  apache-php-server:
+    image: php:apache
+    volumes:
+      - type: bind
+        source: ./demo
+        target: /var/www/html/demo
+      - "./php/php.ini:/usr/local/etc/php/php.ini"
+    command: >
+      sh -c "
+      docker-php-ext-install mysqli pdo pdo_mysql && \
+      docker-php-ext-enable mysqli && \
+      apache2-foreground
+      "
+    ports:
+      - 80:80
+  mysql-db:
+    image: mysql
+    command: --default-authentication-plugin=mysql_native_password
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: 123456
+      MYSQL_DATABASE: demo
+      MYSQL_USER: demo
+      MYSQL_PASSWORD: 123456
+    ports:
+      - 3306:3306
+    volumes:
+      - ./db:/docker-entrypoint-initdb.d
